@@ -39,5 +39,8 @@ $('#createTask').onclick=async()=>{const title=$('#taskTitle').value.trim(),desc
 $('#sendChat').onclick=async()=>{const m=$('#chatInput').value.trim();if(!m)return;$('#chatLog').innerHTML+=`<div class="msg you"><b>You</b><br>${esc(m)}</div>`;const r=await api('/api/chat',{method:'POST',body:JSON.stringify({message:m})});$('#chatLog').innerHTML+=`<div class="msg"><b>${esc(r.agent)}</b><br>${esc(r.reply)}</div>`;$('#chatInput').value='';$('#chatLog').scrollTop=$('#chatLog').scrollHeight;speak(r.reply)};
 $('#chatInput').onkeydown=e=>{if(e.key==='Enter')$('#sendChat').click()};
 $('#broadcast').onclick=()=>{const m=prompt('Company broadcast message:');if(m)alert('Broadcast recorded: '+m)};
+async function loadAI(){try{const s=await api('/api/ai-status');$('#aiEngine').textContent=`AI Engine: ${s.provider} · ${s.model} · RAG ${s.rag?'ON':'OFF'} · NLP ${s.nlp?'ON':'OFF'}`}catch(e){}}
+$('#reindexRag')?.addEventListener('click',async()=>{const r=await api('/api/rag/reindex',{method:'POST'});alert(`RAG indexed ${r.files} files / ${r.chunks} chunks`)});
+$('#showNlp')?.addEventListener('click',async()=>{const q=prompt('NLP test text:');if(q){const r=await api('/api/nlp/analyze?q='+encodeURIComponent(q));alert(JSON.stringify(r,null,2))}});
 async function loadAll(){try{await Promise.all([loadRoles(),loadAttachments(),loadFiles(),loadCalls(),loadAudit()]);await loadTasks();$('#health').textContent='Online'}catch(e){console.error(e);$('#health').textContent='Offline'}}
 loadAll();setInterval(loadAll,8000);

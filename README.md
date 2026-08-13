@@ -21,3 +21,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 Open http://127.0.0.1:8000
+
+
+## AI / RAG / NLP
+Set these Render environment variables:
+- OPENAI_API_KEY = your API key
+- OPENAI_MODEL = gpt-5-mini (or another supported Responses API model)
+
+RAG works locally using TF-IDF even without an API key. `/api/rag/reindex` indexes readable files in the project workspace.

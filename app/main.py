@@ -68,56 +68,24 @@ def approval(tid:int,x:ApprovalRequest,db:Session=Depends(get_db)):
  db.commit();log(db,t.id,'Human','approval_changed',str(x.approved));return ser(t)
 @app.post('/api/chat')
 def chat(x:ChatRequest):
- low=x.message.lower();target=None
- for name,r in BY_NAME.items():
-  if name in low: target=r;break
- if not target: target=BY_ROLE['manager']
- return {'agent':target['name'],'title':target['title'],'reply':f'{target["name"]}: Aapka message mila — “{x.message}”. Is request ko {target["title"]} workflow me handle kiya jayega.'}
-@app.get('/api/files/{project}')
-def files(project:str): return tree(project)
-@app.get('/api/files/{project}/download')
-def download_project(project:str): return FileResponse(zip_project(project),filename=f'{project}-latest.zip',media_type='application/zip')
-@app.get('/api/files/{project}/file')
-def download_file(project:str,path:str):
- p=safe_file(project,path)
- if not p.exists() or not p.is_file(): raise HTTPException(404,'File not found')
- return FileResponse(p,filename=p.name)
-@app.post('/api/files/write')
-def write_file(x:FileWrite,db:Session=Depends(get_db)):
- p=safe_file(x.project,x.path);p.parent.mkdir(parents=True,exist_ok=True);old=p.exists();version=db.query(FileChange).filter(FileChange.project==x.project,FileChange.path==x.path).count()+1
- if old: snapshot(x.project,x.path,version-1)
- p.write_text(x.content,encoding='utf-8');db.add(FileChange(project=x.project,path=x.path,version=version,actor=x.actor,action='updated' if old else 'created',task_id=x.task_id,note=x.note));db.commit();log(db,x.task_id,x.actor,'file_changed',f'{x.path} v{version}');return {'ok':True,'path':x.path,'version':version}
-@app.get('/api/file-changes')
-def changes(db:Session=Depends(get_db)):
- rows=db.query(FileChange).order_by(FileChange.id.desc()).limit(200).all();return [{'id':r.id,'path':r.path,'version':r.version,'actor':r.actor,'action':r.action,'task_id':r.task_id,'note':r.note,'created_at':r.created_at.isoformat()} for r in rows]
-@app.post('/api/handoffs')
-def handoff(x:HandoffCreate,db:Session=Depends(get_db)):
- p=safe_file(x.project,x.path)
- if not p.exists(): raise HTTPException(404,'File not found')
- h=Handoff(project=x.project,path=x.path,from_agent=x.from_agent,to_agent=x.to_agent,purpose=x.purpose);db.add(h);db.commit();db.refresh(h);log(db,0,x.from_agent,'file_handoff',f'{x.path} → {x.to_agent}: {x.purpose}');return {'id':h.id,'status':'shared','path':x.path,'from':x.from_agent,'to':x.to_agent}
-@app.get('/api/handoffs')
-def handoffs(db:Session=Depends(get_db)):
- rs=db.query(Handoff).order_by(Handoff.id.desc()).limit(100).all();return [{'id':r.id,'path':r.path,'from':r.from_agent,'to':r.to_agent,'purpose':r.purpose,'status':r.status,'created_at':r.created_at.isoformat()} for r in rs]
-@app.get('/api/audit')
-def audit(db:Session=Depends(get_db)):
- rs=db.query(AuditLog).order_by(AuditLog.id.desc()).limit(200).all();return [{'id':r.id,'task_id':r.task_id,'actor':r.actor,'action':r.action,'details':r.details,'created_at':r.created_at.isoformat()} for r in rs]
+    low=x.message.lower();target=None
+    for name,r in BY_NAME.items():
+        if name in low: target=r; break
+    target=target or BY_ROLE['manager']
+    out=llm_respond(target['name'],target['title'],x.message)
+    return {'agent':target['name'],'title':target['title'],'reply':out['text'],'nlp':out['nlp'],'sources':out['sources'],'mode':out['mode']}
 
-def _call_reply(agent, message):
-    role=agent['id']
-    base={
-      'manager':'Main request ko analyze karke sahi team ko assign kar raha hoon.',
-      'developer':'Main requirement samajh gaya. Main implementation plan aur code work start kar raha hoon.',
-      'tester':'Main build ko test cases, regression aur bug checks ke saath verify karunga.',
-      'ui_ux':'Main interface ko user flow, responsive layout aur usability ke hisaab se design karungi.',
-      'database':'Main schema, queries aur data integrity check kar raha hoon.',
-      'devops':'Main deployment, environment aur release workflow check kar raha hoon.',
-      'hr':'Main candidate ya HR workflow ko handle kar rahi hoon.',
-      'email':'Main communication draft aur delivery workflow prepare kar rahi hoon.',
-      'security':'Main access, secrets aur common security risks review kar raha hoon.',
-    }.get(role, f"Main {agent['title']} workflow me is request par kaam kar raha hoon.")
-    if message:
-        return f"{agent['name']}: {base} Aapne kaha: {message}"
-    return f"{agent['name']}: Hello, main {agent['title']} hoon. Bataiye kya kaam karna hai."
+@app.get('/api/ai-status')
+def ai_status(): return llm_status()
+
+@app.post('/api/rag/reindex')
+def rag_reindex(): return build_index()
+
+@app.get('/api/rag/search')
+def rag_search(q:str,top_k:int=6): return {'query':q,'results':retrieve(q,top_k)}
+
+@app.get('/api/nlp/analyze')
+def nlp_api(q:str): return nlp_analyze(q)
 
 @app.post('/api/calls')
 def create_call(x:CallCreate,db:Session=Depends(get_db)):
