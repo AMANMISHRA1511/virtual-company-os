@@ -13,7 +13,7 @@ from .services.classifier import router
 from .services.agents import execute
 from .services.files import tree,safe_file,snapshot,zip_project,project_root
 Base.metadata.create_all(bind=engine)
-app=FastAPI(title='Virtual Company OS',version='1.0.0');app.mount('/static',StaticFiles(directory='app/static'),name='static')
+app=FastAPI(title='Virtual Company OS',version='4.2.0');app.mount('/static',StaticFiles(directory='app/static'),name='static')
 def log(db,task_id,actor,action,details=''):
  db.add(AuditLog(task_id=task_id,actor=actor,action=action,details=details));db.commit()
 def ser(t): return {'id':t.id,'title':t.title,'description':t.description,'assigned_role':t.assigned_role,'assigned_name':t.assigned_name,'status':t.status,'result':t.result,'requires_approval':t.requires_approval,'approved':t.approved,'created_at':t.created_at.isoformat()}
@@ -22,7 +22,7 @@ def root_head(): return Response(status_code=200)
 @app.get('/')
 def home(): return FileResponse('app/static/index.html')
 @app.get('/api/health')
-def health(): return {'status':'ok','roles':len(ROLES)}
+def health(): return {'status':'ok','roles':len(ROLES),'version':'4.2.0'}
 @app.get('/api/roles')
 def roles(): return ROLES
 def resolve_employee(value:str|None,title:str='',description:str=''):
@@ -49,8 +49,14 @@ def create_task(x:TaskCreate,db:Session=Depends(get_db)):
 def run_task(tid:int,db:Session=Depends(get_db)):
  t=db.get(Task,tid)
  if not t: raise HTTPException(404,'Task not found')
- t.status='running';db.commit();path,summary,approval=execute(t);t.result=f'{summary} File: {path}';t.requires_approval=approval;t.status='waiting_approval' if approval and not t.approved else 'completed';t.updated_at=datetime.utcnow();db.commit()
- version=db.query(FileChange).filter(FileChange.path==Path(path).name).count()+1;db.add(FileChange(path=Path(path).name,version=version,actor=t.assigned_name,action='created/updated',task_id=t.id,note=summary));db.commit();snapshot('demo-company',Path(path).name,version);log(db,t.id,t.assigned_name,'work_completed',t.result);return ser(t)
+ t.status='running';db.commit();log(db,t.id,t.assigned_name,'work_started',t.title)
+ attachments=db.query(TaskAttachment).filter(TaskAttachment.task_id==tid).all()
+ attachment_paths=[safe_file(a.project,a.path) for a in attachments]
+ path,summary,approval=execute(t,attachment_paths)
+ t.result=f'{summary} File: {path}';t.requires_approval=approval;t.status='waiting_approval' if approval and not t.approved else 'completed';t.updated_at=datetime.utcnow();db.commit()
+ version=db.query(FileChange).filter(FileChange.project=='demo-company',FileChange.path==path).count()+1
+ db.add(FileChange(project='demo-company',path=path,version=version,actor=t.assigned_name,action='created',task_id=t.id,note=summary));db.commit()
+ log(db,t.id,t.assigned_name,'work_completed',t.result);return ser(t)
 @app.get('/api/tasks')
 def tasks(db:Session=Depends(get_db)): return [ser(t) for t in db.query(Task).order_by(Task.id.desc()).all()]
 @app.post('/api/tasks/{tid}/approval')
