@@ -1,79 +1,90 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Virtual Company OS</title>
-  <link rel="stylesheet" href="/static/style.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Virtual Co — AI Company OS</title>
+<link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 <body>
-<div class="app-shell">
-  <aside id="sidebar" class="sidebar">
-    <div class="brand-row">
-      <div class="logo-mark">VC</div>
-      <div><div class="brand">Virtual Company</div><div class="small">AI Operating System</div></div>
-      <button id="closeMenu" class="icon-btn mobile-only">×</button>
+<div class="layout">
+<aside class="left">
+  <div class="brand"><div class="mark">◇</div><div><b>VIRTUAL CO</b><small>AI COMPANY OPERATING SYSTEM</small></div></div>
+  <nav>
+    <button class="active" data-tab="office">🏢 <span>Live Office</span><em>LIVE</em></button>
+    <button data-tab="tasks">☑ <span>Tasks</span></button>
+    <button data-tab="files">📁 <span>File Library</span></button>
+    <button data-tab="calls">☎ <span>Phone Directory</span></button>
+    <button data-tab="activity">⚡ <span>Activity Feed</span></button>
+  </nav>
+  <div class="panel-title">QUICK ACTIONS</div>
+  <div class="quick"><button data-open="tasks">＋ New Task</button><button data-open="files">⇧ Upload / Files</button><button id="broadcast">◉ Broadcast Message</button></div>
+  <div class="assistant-box"><div class="orb"></div><div><b>AI Assistant</b><small>Online · Hindi / English</small></div></div>
+</aside>
+
+<main>
+<header>
+  <div class="search">⌕ <input id="search" placeholder="Search employees, tasks, files..."></div>
+  <div class="online">● Company Online</div>
+</header>
+
+<section id="office" class="tab active">
+  <div class="metrics">
+    <article><small>EMPLOYEES</small><b id="roleCount">24</b><span>Total</span></article>
+    <article><small>WORKING NOW</small><b id="workingCount">0</b><span>Live tasks</span></article>
+    <article><small>COMPLETED TODAY</small><b id="doneCount">0</b><span>Tasks</span></article>
+    <article><small>PENDING TASKS</small><b id="pendingCount">0</b><span>Waiting</span></article>
+    <article><small>SYSTEM STATUS</small><strong>● Operational</strong><span id="health">Checking...</span></article>
+  </div>
+  <div class="office-wrap">
+    <div class="office-map">
+      <div class="room reception"><h3>RECEPTION</h3><div class="lobby"><div class="reception-desk">VIRTUAL CO<br><small>AI COMPANY OS</small></div></div></div>
+      <div class="room executive"><h3>EXECUTIVE WING</h3><div class="employees" data-room="Executive"></div></div>
+      <div class="room meeting"><h3>CONFERENCE ROOM</h3><div class="conference">Boardroom<br><small>Meetings · Reviews · Approvals</small></div></div>
+      <div class="room engineering"><h3>ENGINEERING STUDIO</h3><div class="employees" data-room="Engineering"></div></div>
+      <div class="room design"><h3>UI/UX + AI STUDIO</h3><div class="employees" data-room="DesignAI"></div></div>
+      <div class="room qa"><h3>QA & SECURITY LAB</h3><div class="employees" data-room="QA"></div></div>
+      <div class="room people"><h3>PEOPLE OFFICE</h3><div class="employees" data-room="People"></div></div>
+      <div class="room data"><h3>DATA & RESEARCH</h3><div class="employees" data-room="Data"></div></div>
+      <div class="room growth"><h3>GROWTH HUB</h3><div class="employees" data-room="Growth"></div></div>
+      <div class="room ops"><h3>OPERATIONS & FINANCE</h3><div class="employees" data-room="Ops"></div></div>
+      <div class="room server"><h3>SERVER ROOM</h3><div class="employees" data-room="Server"></div></div>
+      <div class="room pantry"><h3>PANTRY</h3><div class="pantry-art">☕ 🪴 🛋️</div></div>
     </div>
-    <nav>
-      <button data-tab="office" class="active"><span>🏢</span> Live Office</button>
-      <button data-tab="tasks"><span>📋</span> Tasks</button>
-      <button data-tab="files"><span>📚</span> File Library</button>
-      <button data-tab="chat"><span>💬</span> Company Chat</button>
-      <button data-tab="activity"><span>⚡</span> Activity</button>
-    </nav>
-    <div class="sidebar-section-title">Team directory</div>
-    <div id="sidebarRoles" class="sidebar-roles"></div>
-  </aside>
+  </div>
+</section>
 
-  <main>
-    <header class="topbar">
-      <div class="topbar-left">
-        <button id="openMenu" class="icon-btn mobile-only">☰</button>
-        <div><h1 id="pageTitle">Live Office</h1><p>See who is working, where files are moving, and what each AI employee is doing.</p></div>
-      </div>
-      <span id="health" class="pill">● connecting</span>
-    </header>
+<section id="tasks" class="tab">
+ <div class="section-head"><div><h2>Task Center</h2><p>Assign work directly to the AI team.</p></div></div>
+ <div class="task-create card"><input id="taskTitle" placeholder="Task title"><textarea id="taskDesc" placeholder="Hindi/English me requirement likho..."></textarea><button id="createTask">Create & Route</button></div>
+ <div id="taskList" class="card"></div>
+</section>
 
-    <section id="office" class="tab active">
-      <div class="metrics">
-        <div class="metric-card"><span>👥</span><div><small>Employees</small><b id="roleCount">24</b></div></div>
-        <div class="metric-card"><span>🟢</span><div><small>Working now</small><b id="openCount">0</b></div></div>
-        <div class="metric-card"><span>✅</span><div><small>Completed</small><b id="doneCount">0</b></div></div>
-        <div class="metric-card"><span>📁</span><div><small>Project files</small><b id="fileCount">0</b></div></div>
-      </div>
+<section id="files" class="tab">
+ <div class="section-head"><div><h2>File Library</h2><p>All generated files, versions and handoffs.</p></div><a class="primary" href="/api/files/demo-company/download">Download Project ZIP</a></div>
+ <div class="file-grid"><div class="card"><h3>Project Tree</h3><div id="fileTree"></div></div><div class="card"><h3>Change History</h3><div id="changes"></div><h3>Handoffs</h3><div id="handoffs"></div></div></div>
+</section>
 
-      <div class="office-toolbar card">
-        <div><div class="eyebrow">LIVE DIGITAL TWIN</div><h2>Virtual Headquarters</h2><p>Every room is a department. Status comes from real tasks, not fake animation.</p></div>
-        <div class="toolbar-actions"><div class="legend"><span><i class="dot available"></i>Available</span><span><i class="dot working"></i>Working</span><span><i class="dot review"></i>Review</span></div><button id="refresh" class="secondary-btn">↻ Refresh</button></div>
-      </div>
+<section id="calls" class="tab">
+ <div class="section-head"><div><h2>Direct Phone Directory</h2><p>Each employee has a direct internal line. No IVR.</p></div></div>
+ <div id="directory" class="directory"></div>
+ <div class="card"><h3>Call History</h3><div id="callHistory"></div></div>
+</section>
 
-      <div class="office-campus">
-        <div class="office-corridor"><span>RECEPTION</span><div class="reception-desk">AI Front Desk & Visitor Lobby</div><span>MAIN CORRIDOR</span></div>
-        <div id="officeFloor" class="office-floor"></div>
-        <div class="meeting-zone"><div class="meeting-room"><b>Conference Room</b><span>Team meetings • project reviews • approvals</span></div><div class="server-room"><b>Server / DevOps Room</b><span>Deployments • infrastructure • monitoring</span></div></div>
-        <div class="handoff-lane"><span class="lane-label">Live file handoff</span><div id="handoffTicker" class="handoff-ticker">No file transfers yet</div></div>
-      </div>
-      <div id="agentDrawer" class="agent-drawer hidden"><button id="closeAgent" class="drawer-close">×</button><div id="agentDrawerBody"></div></div>
-    </section>
+<section id="activity" class="tab"><div class="card"><h2>Live Activity</h2><div id="audit"></div></div></section>
+</main>
 
-    <section id="tasks" class="tab">
-      <div class="grid2">
-        <div class="card"><h2>Assign Task</h2><input id="taskTitle" placeholder="Task title"><textarea id="taskDesc" placeholder="Hindi/English: Arjun login API banao / Neha project test karo"></textarea><button id="createTask">Create & Route</button></div>
-        <div class="card"><div class="eyebrow">AUTONOMOUS FLOW</div><h2>How work moves</h2><div class="flow-steps"><span>CEO</span><b>→</b><span>Aarav</span><b>→</b><span>Specialist</span><b>→</b><span>File</span><b>→</b><span>QA/Review</span><b>→</b><span>Done</span></div></div>
-      </div>
-      <div class="card"><h2>Task Board</h2><div id="taskList"></div></div>
-    </section>
-
-    <section id="files" class="tab">
-      <div class="card"><div class="row"><div><div class="eyebrow">PROJECT WORKSPACE</div><h2>Workspace File Library</h2><p>VS Code style file tree, downloads, history and agent handoffs.</p></div><a class="button" href="/api/files/demo-company/download">Download Full Project ZIP</a></div>
-      <div class="file-layout"><div class="file-panel"><h3>File Tree</h3><div id="fileTree"></div></div><div><h3>Change History</h3><div id="changes"></div><h3>File Handoff</h3><div class="handoff-form"><input id="handoffPath" placeholder="e.g. qa_report.md"><input id="fromAgent" placeholder="From: Arjun"><input id="toAgent" placeholder="To: Neha"><input id="purpose" placeholder="Purpose: testing"><button id="shareFile">Share File</button></div><div id="handoffs"></div></div></div></div>
-    </section>
-
-    <section id="chat" class="tab"><div class="card"><div class="eyebrow">DIRECT COMMUNICATION</div><h2>Talk to any assistant</h2><p>Example: “Neha, latest project test karo” or “Arjun file Neha ko do”.</p><div id="chatLog" class="chatlog"></div><div class="chatbox"><input id="chatInput" placeholder="Assistant ka naam lekar message likho..."><button id="sendChat">Send</button></div></div></section>
-    <section id="activity" class="tab"><div class="card"><div class="eyebrow">AUDIT TRAIL</div><h2>Live Activity Feed</h2><div id="audit"></div></div></section>
-  </main>
+<aside class="right">
+  <div class="right-head"><b>COMPANY CHAT</b><span>● online</span></div>
+  <div id="chatLog" class="chat-log"></div>
+  <div class="chat-input"><input id="chatInput" placeholder="Type a message..."><button id="sendChat">➤</button></div>
+  <div class="right-head"><b>ACTIVITY FEED</b><span>Live</span></div>
+  <div id="miniActivity" class="mini-activity"></div>
+  <div class="right-head"><b>LIVE STATISTICS</b><span>Today</span></div>
+  <div class="stats"><div>Tasks Completed <b id="sDone">0</b></div><div>Files <b id="sFiles">0</b></div><div>Calls <b id="sCalls">0</b></div><div>Active Now <b id="sActive">0</b></div></div>
+</aside>
 </div>
-<div id="backdrop" class="backdrop hidden"></div>
-<script src="/static/app.js"></script>
-</body>
-</html>
+
+<div id="employeeModal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="x">×</button><div id="employeeBody"></div></div></div>
+<div id="callModal" class="modal hidden"><div class="modal-card call-card"><button id="closeCall" class="x">×</button><div id="callBody"></div></div></div>
+<script src="/static/app.js?v=3"></script>
+</body></html>

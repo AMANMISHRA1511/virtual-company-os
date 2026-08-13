@@ -44,3 +44,15 @@ class Handoff(Base):
     purpose:Mapped[str]=mapped_column(Text,default='')
     status:Mapped[str]=mapped_column(String(30),default='shared')
     created_at:Mapped[datetime]=mapped_column(DateTime,default=datetime.utcnow)
+
+class CallSession(Base):
+    __tablename__='call_sessions'
+    id:Mapped[int]=mapped_column(Integer,primary_key=True)
+    from_agent:Mapped[str]=mapped_column(String(80),default='You')
+    to_agent:Mapped[str]=mapped_column(String(80))
+    extension:Mapped[str]=mapped_column(String(20),default='')
+    channel:Mapped[str]=mapped_column(String(30),default='internal')
+    message:Mapped[str]=mapped_column(Text,default='')
+    response:Mapped[str]=mapped_column(Text,default='')
+    status:Mapped[str]=mapped_column(String(30),default='completed')
+    created_at:Mapped[datetime]=mapped_column(DateTime,default=datetime.utcnow)

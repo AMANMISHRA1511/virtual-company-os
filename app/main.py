@@ -5,9 +5,9 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from .database import Base,engine,get_db
-from .models import Task,AuditLog,FileChange,Handoff
-from .schemas import TaskCreate,ApprovalRequest,FileWrite,HandoffCreate,ChatRequest
-from .services.roles import ROLES,BY_ROLE,BY_NAME
+from .models import Task,AuditLog,FileChange,Handoff,CallSession
+from .schemas import TaskCreate,ApprovalRequest,FileWrite,HandoffCreate,ChatRequest,CallCreate
+from .services.roles import ROLES,BY_ROLE,BY_NAME,BY_EXTENSION
 from .services.classifier import router
 from .services.agents import execute
 from .services.files import tree,safe_file,snapshot,zip_project,project_root
@@ -77,3 +77,57 @@ def handoffs(db:Session=Depends(get_db)):
 @app.get('/api/audit')
 def audit(db:Session=Depends(get_db)):
  rs=db.query(AuditLog).order_by(AuditLog.id.desc()).limit(200).all();return [{'id':r.id,'task_id':r.task_id,'actor':r.actor,'action':r.action,'details':r.details,'created_at':r.created_at.isoformat()} for r in rs]
+
+def _call_reply(agent, message):
+    role=agent['id']
+    base={
+      'manager':'Main request ko analyze karke sahi team ko assign kar raha hoon.',
+      'developer':'Main requirement samajh gaya. Main implementation plan aur code work start kar raha hoon.',
+      'tester':'Main build ko test cases, regression aur bug checks ke saath verify karunga.',
+      'ui_ux':'Main interface ko user flow, responsive layout aur usability ke hisaab se design karungi.',
+      'database':'Main schema, queries aur data integrity check kar raha hoon.',
+      'devops':'Main deployment, environment aur release workflow check kar raha hoon.',
+      'hr':'Main candidate ya HR workflow ko handle kar rahi hoon.',
+      'email':'Main communication draft aur delivery workflow prepare kar rahi hoon.',
+      'security':'Main access, secrets aur common security risks review kar raha hoon.',
+    }.get(role, f"Main {agent['title']} workflow me is request par kaam kar raha hoon.")
+    if message:
+        return f"{agent['name']}: {base} Aapne kaha: {message}"
+    return f"{agent['name']}: Hello, main {agent['title']} hoon. Bataiye kya kaam karna hai."
+
+@app.post('/api/calls')
+def create_call(x:CallCreate,db:Session=Depends(get_db)):
+    target=None
+    low=x.to_agent.lower().strip()
+    if low in BY_NAME: target=BY_NAME[low]
+    elif x.to_agent in BY_EXTENSION: target=BY_EXTENSION[x.to_agent]
+    else:
+        for r in ROLES:
+            if r['name'].lower()==low or r['extension']==x.to_agent:
+                target=r;break
+    if not target: raise HTTPException(404,'Employee not found')
+    response=_call_reply(target,x.message)
+    c=CallSession(from_agent=x.from_agent,to_agent=target['name'],extension=target['extension'],channel=x.channel,message=x.message,response=response,status='completed')
+    db.add(c);db.commit();db.refresh(c)
+    task_id=None
+    if x.create_task and x.message.strip():
+        t=Task(title=f"Call request for {target['name']}",description=x.message,assigned_role=target['id'],assigned_name=target['name'],status='queued')
+        db.add(t);db.commit();db.refresh(t);task_id=t.id
+        log(db,t.id,x.from_agent,'task_created_from_call',f"Direct call → {target['name']} ext {target['extension']}")
+    log(db,task_id or 0,x.from_agent,'internal_call',f"Called {target['name']} ext {target['extension']}")
+    return {'id':c.id,'to':target['name'],'title':target['title'],'extension':target['extension'],'response':response,'task_id':task_id,'channel':x.channel}
+
+@app.get('/api/calls')
+def list_calls(db:Session=Depends(get_db)):
+    rs=db.query(CallSession).order_by(CallSession.id.desc()).limit(100).all()
+    return [{'id':r.id,'from':r.from_agent,'to':r.to_agent,'extension':r.extension,'channel':r.channel,'message':r.message,'response':r.response,'status':r.status,'created_at':r.created_at.isoformat()} for r in rs]
+
+@app.post('/api/internal-call/{from_name}/{to_name}')
+def internal_call(from_name:str,to_name:str,x:ChatRequest,db:Session=Depends(get_db)):
+    f=BY_NAME.get(from_name.lower());t=BY_NAME.get(to_name.lower())
+    if not f or not t: raise HTTPException(404,'Employee not found')
+    response=_call_reply(t,x.message)
+    c=CallSession(from_agent=f['name'],to_agent=t['name'],extension=t['extension'],channel='employee_to_employee',message=x.message,response=response,status='completed')
+    db.add(c);db.commit();db.refresh(c)
+    log(db,0,f['name'],'employee_call',f"{f['name']} → {t['name']}: {x.message}")
+    return {'id':c.id,'from':f['name'],'to':t['name'],'extension':t['extension'],'response':response}
