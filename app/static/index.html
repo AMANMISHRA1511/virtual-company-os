@@ -1,10 +1,187 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Virtual Co</title><link rel="stylesheet" href="/static/style.css?v=10"></head><body>
-<div class="app"><aside id="side"><div class="brand">◆ VIRTUAL CO<small>AI Company Operating System</small></div><button class="active" data-tab="office">🏢 Live Office</button><button data-tab="tasks">☑ Tasks</button><button data-tab="files">📁 File Library</button><button data-tab="phone">☎ Phone</button><button data-tab="activity">⚡ Activity</button><div class="engine">Engine <b>RAG + NLP + Workflow</b><small>LLM provider not configured</small></div></aside>
-<main><header><button id="menu">☰</button><div><h1 id="pageTitle">Live Office</h1><p>Real tasks, files, handoffs and outputs.</p></div><span id="health">● checking</span></header>
-<section id="office" class="tab active"><div class="metrics"><div><b id="rc">24</b><small>Employees</small></div><div><b id="wc">0</b><small>Working</small></div><div><b id="cc">0</b><small>Completed</small></div><div><b id="fc">0</b><small>Files</small></div></div><div class="officeScroll"><div id="floor" class="floor"></div></div></section>
-<section id="tasks" class="tab"><div class="card"><h2>Assign Task</h2><div class="form2"><label>Employee<select id="emp"><option value="">Auto route</option></select></label><label>Title<input id="title" placeholder="Fix login API"></label></div><label>Description<textarea id="desc" placeholder="Hindi / English requirement"></textarea></label><label class="upload">📎 Files from phone/local storage<input id="uploads" type="file" multiple></label><div id="picked"></div><button id="assign">Assign Task</button></div><div class="card"><h2>Task Board</h2><div id="taskList"></div></div></section>
-<section id="files" class="tab"><div class="card"><div class="row"><h2>File Library</h2><a href="/api/files/demo-company/download">Download ZIP</a></div><div id="fileTree"></div><h3>Agent Handoffs</h3><div id="handoffs"></div></div></section>
-<section id="phone" class="tab"><div class="card"><h2>Direct lines</h2><div id="directory" class="directory"></div><h3>Call History</h3><div id="calls"></div></div></section>
-<section id="activity" class="tab"><div class="card"><h2>Audit & Agent Messages</h2><div id="audit"></div></div></section></main>
-<aside class="right"><h3>Company Chat</h3><div id="chat"></div><div class="chatbox"><input id="chatInput" placeholder="Arjun, status batao"><button id="send">➤</button></div><h3>Latest</h3><div id="mini"></div></aside></div>
-<div id="drawer" class="drawer hidden"><button id="close">×</button><div id="drawerBody"></div></div><script src="/static/app.js?v=10"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Virtual Co — AI Company OS</title>
+<link rel="stylesheet" href="/static/style.css?v=12">
+</head>
+<body>
+<div class="app-shell">
+  <aside id="side" class="sidebar">
+    <div class="brand"><span class="brand-mark">VC</span><div><b>VIRTUAL CO</b><small>AI COMPANY OS</small></div></div>
+    <nav>
+      <button class="active" data-tab="office">▣ <span>Live Office</span></button>
+      <button data-tab="tasks">☑ <span>Tasks</span></button>
+      <button data-tab="files">□ <span>File Library</span></button>
+      <button data-tab="phone">☎ <span>Phone Directory</span></button>
+      <button data-tab="activity">⚡ <span>Activity Feed</span></button>
+    </nav>
+
+    <div class="side-title">QUICK ACTIONS</div>
+    <button class="quick" data-open="tasks">✎ Assign Task</button>
+    <button class="quick" data-open="files">⇧ Upload / Files</button>
+    <button class="quick" data-open="phone">☎ Start Call</button>
+
+    <div class="engine">
+      <span>AI ENGINE STATUS</span>
+      <b>RAG + NLP + Workflow</b>
+      <small id="engineStatus">Checking provider…</small>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <button id="menu">☰</button>
+      <div class="search">⌕ <input id="globalSearch" placeholder="Search employees, tasks, files, conversations…"></div>
+      <span id="health">● Company Online</span>
+    </header>
+
+    <section id="office" class="tab active">
+      <div class="metrics">
+        <article><small>EMPLOYEES</small><b id="rc">24</b><span>Online</span></article>
+        <article><small>WORKING NOW</small><b id="wc">0</b><span>Active Tasks</span></article>
+        <article><small>COMPLETED TODAY</small><b id="cc">0</b><span>Tasks</span></article>
+        <article><small>PENDING TASKS</small><b id="pc">0</b><span>Waiting</span></article>
+        <article><small>FILES</small><b id="fc">0</b><span>Total</span></article>
+      </div>
+
+      <div class="office-toolbar">
+        <div><b>Virtual Headquarters</b><small>Tap any employee to talk, call, assign or view files.</small></div>
+        <div class="zoom-controls"><button id="zoomOut">−</button><span id="zoomLabel">100%</span><button id="zoomIn">+</button><button id="zoomReset">Reset</button></div>
+      </div>
+
+      <div id="officeViewport" class="office-viewport">
+        <div id="officeMap" class="office-map">
+          <section class="room reception">
+            <div class="room-label">Reception</div>
+            <div class="wall-logo">VIRTUAL CO<small>AI COMPANY OS</small></div>
+            <div class="reception-counter"></div>
+            <div class="office-staff" data-zone="Reception"></div>
+          </section>
+
+          <section class="room conference">
+            <div class="room-label">Conference Room</div>
+            <div class="conference-table"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </section>
+
+          <section class="room director">
+            <div class="room-label">Director Cabin</div>
+            <div class="cabinet"></div>
+            <div class="office-staff" data-zone="Director"></div>
+          </section>
+
+          <section class="room pantry">
+            <div class="room-label">Pantry</div>
+            <div class="pantry-bar"></div>
+            <div class="round-table t1"></div><div class="round-table t2"></div>
+          </section>
+
+          <section class="room engineering">
+            <div class="room-label">Engineering Zone</div>
+            <div class="office-staff engineering-staff" data-zone="Engineering"></div>
+          </section>
+
+          <section class="room qa">
+            <div class="room-label">QA Lab</div>
+            <div class="office-staff" data-zone="QA"></div>
+          </section>
+
+          <section class="room data-design">
+            <div class="room-label">Data + Design Studio</div>
+            <div class="office-staff" data-zone="DataDesign"></div>
+          </section>
+
+          <section class="room growth">
+            <div class="room-label">Growth + Support</div>
+            <div class="office-staff" data-zone="Growth"></div>
+          </section>
+
+          <section class="room hr">
+            <div class="room-label">HR Cabin</div>
+            <div class="office-staff" data-zone="HR"></div>
+          </section>
+
+          <section class="room finance">
+            <div class="room-label">Finance</div>
+            <div class="office-staff" data-zone="Finance"></div>
+          </section>
+
+          <section class="room operations">
+            <div class="room-label">Operations</div>
+            <div class="office-staff" data-zone="Operations"></div>
+          </section>
+
+          <section class="room compliance">
+            <div class="room-label">Compliance</div>
+            <div class="office-staff" data-zone="Compliance"></div>
+          </section>
+
+          <section class="room server">
+            <div class="room-label">Server Room</div>
+            <div class="server-racks"><i></i><i></i><i></i></div>
+            <div class="office-staff server-staff" data-zone="Server"></div>
+          </section>
+
+          <section class="room lounge">
+            <div class="sofa s1"></div><div class="sofa s2"></div>
+            <div class="plant p1">🌿</div><div class="plant p2">🌿</div>
+            <div class="welcome">WELCOME</div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="tasks" class="tab">
+      <div class="card">
+        <h2>Assign Task</h2>
+        <div class="form2">
+          <label>Employee<select id="emp"><option value="">Auto route</option></select></label>
+          <label>Title<input id="title" placeholder="Build login API"></label>
+        </div>
+        <label>Description<textarea id="desc" placeholder="Hindi / English requirement"></textarea></label>
+        <label class="upload">📎 Files from phone/local storage<input id="uploads" type="file" multiple></label>
+        <div id="picked"></div>
+        <label class="toggle-line"><input id="autoRun" type="checkbox" checked> Start employee automatically</label>
+        <button id="assign">Assign Task</button>
+      </div>
+      <div class="card"><h2>Task Board</h2><div id="taskList"></div></div>
+    </section>
+
+    <section id="files" class="tab">
+      <div class="card"><div class="row"><h2>File Library</h2><a href="/api/files/demo-company/download">Download Workspace ZIP</a></div>
+      <div id="fileTree"></div><h3>Agent Handoffs</h3><div id="handoffs"></div></div>
+    </section>
+
+    <section id="phone" class="tab">
+      <div class="card"><h2>Phone Directory</h2><p>Direct internal lines — no IVR.</p>
+      <div id="directory" class="directory"></div><h3>Call History</h3><div id="calls"></div></div>
+    </section>
+
+    <section id="activity" class="tab">
+      <div class="card"><h2>Activity Feed</h2><div id="audit"></div></div>
+    </section>
+  </main>
+
+  <aside class="right-panel">
+    <div class="assistant-card">
+      <h3>🤖 AI Assistant</h3>
+      <p id="assistantHello">Hello! How can I help you today?</p>
+      <div class="assistant-chat"><input id="chatInput" placeholder="Ask Aarav or any employee…"><button id="send">➤</button></div>
+      <div id="chat"></div>
+    </div>
+    <div class="panel-head"><h3>Recent Activity</h3><span>Live</span></div><div id="mini"></div>
+    <div class="panel-head"><h3>Live Calls</h3><span>Direct</span></div><div id="liveCalls"></div>
+    <button class="dial" data-open="phone">Dial Number</button>
+    <div class="summary"><h3>Today's Summary</h3><div>
+      <span>Tasks Completed<b id="sumCompleted">0</b></span>
+      <span>Files Uploaded<b id="sumFiles">0</b></span>
+      <span>Active Employees<b id="sumActive">24</b></span>
+      <span>Working Now<b id="sumWorking">0</b></span>
+    </div></div>
+  </aside>
+</div>
+
+<div id="drawer" class="drawer hidden"><button id="close">×</button><div id="drawerBody"></div></div>
+<script src="/static/app.js?v=12"></script>
+</body></html>
