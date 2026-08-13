@@ -56,3 +56,16 @@ class CallSession(Base):
     response:Mapped[str]=mapped_column(Text,default='')
     status:Mapped[str]=mapped_column(String(30),default='completed')
     created_at:Mapped[datetime]=mapped_column(DateTime,default=datetime.utcnow)
+
+class TaskAttachment(Base):
+    __tablename__='task_attachments'
+    id:Mapped[int]=mapped_column(Integer,primary_key=True)
+    task_id:Mapped[int]=mapped_column(Integer,index=True)
+    project:Mapped[str]=mapped_column(String(100),default='demo-company')
+    path:Mapped[str]=mapped_column(String(500))
+    original_name:Mapped[str]=mapped_column(String(255))
+    mime_type:Mapped[str]=mapped_column(String(120),default='application/octet-stream')
+    size_bytes:Mapped[int]=mapped_column(Integer,default=0)
+    uploaded_by:Mapped[str]=mapped_column(String(80),default='You')
+    assigned_to:Mapped[str]=mapped_column(String(80),default='')
+    created_at:Mapped[datetime]=mapped_column(DateTime,default=datetime.utcnow)

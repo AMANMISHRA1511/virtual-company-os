@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Virtual Co — AI Company OS</title>
-<link rel="stylesheet" href="/static/style.css?v=3">
+<link rel="stylesheet" href="/static/style.css?v=4">
 </head>
 <body>
 <div class="layout">
@@ -55,7 +55,21 @@
 
 <section id="tasks" class="tab">
  <div class="section-head"><div><h2>Task Center</h2><p>Assign work directly to the AI team.</p></div></div>
- <div class="task-create card"><input id="taskTitle" placeholder="Task title"><textarea id="taskDesc" placeholder="Hindi/English me requirement likho..."></textarea><button id="createTask">Create & Route</button></div>
+ <div class="task-create card">
+  <div class="form-grid">
+    <div><label>Assign To</label><select id="taskEmployee"><option value="">Auto — AI Manager decides</option></select></div>
+    <div><label>Task Title</label><input id="taskTitle" placeholder="e.g. Fix login API"></div>
+  </div>
+  <label>Description</label>
+  <textarea id="taskDesc" placeholder="Hindi/English me requirement likho..."></textarea>
+  <div class="upload-box">
+    <label class="upload-label" for="taskFiles">📎 Add files from phone / local storage</label>
+    <input id="taskFiles" type="file" multiple>
+    <div id="selectedFiles" class="selected-files">No files selected</div>
+  </div>
+  <label class="checkline"><input id="saveLibrary" type="checkbox" checked> Attachments ko File Library me save karo</label>
+  <button id="createTask">Assign Task</button>
+</div>
  <div id="taskList" class="card"></div>
 </section>
 
@@ -86,5 +100,5 @@
 
 <div id="employeeModal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="x">×</button><div id="employeeBody"></div></div></div>
 <div id="callModal" class="modal hidden"><div class="modal-card call-card"><button id="closeCall" class="x">×</button><div id="callBody"></div></div></div>
-<script src="/static/app.js?v=3"></script>
+<script src="/static/app.js?v=4"></script>
 </body></html>
