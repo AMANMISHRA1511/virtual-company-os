@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from fastapi import FastAPI,Depends,HTTPException
+from fastapi import FastAPI,Depends,HTTPException,Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -16,6 +16,8 @@ app=FastAPI(title='Virtual Company OS',version='1.0.0');app.mount('/static',Stat
 def log(db,task_id,actor,action,details=''):
  db.add(AuditLog(task_id=task_id,actor=actor,action=action,details=details));db.commit()
 def ser(t): return {'id':t.id,'title':t.title,'description':t.description,'assigned_role':t.assigned_role,'assigned_name':t.assigned_name,'status':t.status,'result':t.result,'requires_approval':t.requires_approval,'approved':t.approved,'created_at':t.created_at.isoformat()}
+@app.head('/')
+def root_head(): return Response(status_code=200)
 @app.get('/')
 def home(): return FileResponse('app/static/index.html')
 @app.get('/api/health')
