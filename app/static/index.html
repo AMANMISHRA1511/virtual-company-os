@@ -1,9 +1,79 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Virtual Company OS</title><link rel="stylesheet" href="/static/style.css"></head><body>
-<div class="app"><aside><div class="brand">VIRTUAL<span>CO</span></div><div class="small">AI Company Operating System</div><nav><button data-tab="office" class="active">🏢 Live Office</button><button data-tab="tasks">📋 Tasks</button><button data-tab="files">📚 File Library</button><button data-tab="chat">💬 Company Chat</button><button data-tab="activity">⚡ Activity</button></nav><div id="sidebarRoles"></div></aside>
-<main><header><div><h1 id="pageTitle">Live Office</h1><p>24 named virtual employees • ML routing • file handoffs • version history</p></div><span id="health" class="pill">● connecting</span></header>
-<section id="office" class="tab active"><div class="metrics"><div><small>Employees</small><b id="roleCount">24</b></div><div><small>Open Tasks</small><b id="openCount">0</b></div><div><small>Completed</small><b id="doneCount">0</b></div><div><small>Files</small><b id="fileCount">0</b></div></div><div class="card"><div class="row"><h2>Virtual Office Floor</h2><button id="refresh">Refresh</button></div><div id="officeGrid" class="office-grid"></div></div></section>
-<section id="tasks" class="tab"><div class="grid2"><div class="card"><h2>Assign Task</h2><input id="taskTitle" placeholder="Task title"><textarea id="taskDesc" placeholder="Hindi/English: Arjun login API banao / Neha project test karo"></textarea><button id="createTask">Create & Route</button></div><div class="card"><h2>Flow</h2><p>CEO → Aarav Manager → specialist → file → review/test → handoff → approval → final output.</p></div></div><div class="card"><h2>Task Board</h2><div id="taskList"></div></div></section>
-<section id="files" class="tab"><div class="card"><div class="row"><div><h2>Workspace File Library</h2><p>VS Code style project tree + downloads + history</p></div><a class="button" href="/api/files/demo-company/download">Download Full Project ZIP</a></div><div class="file-layout"><div><h3>File Tree</h3><div id="fileTree"></div></div><div><h3>Change History</h3><div id="changes"></div><h3>File Handoff</h3><div class="handoff"><input id="handoffPath" placeholder="e.g. qa_report.md"><input id="fromAgent" placeholder="From: Arjun"><input id="toAgent" placeholder="To: Neha"><input id="purpose" placeholder="Purpose: testing"><button id="shareFile">Share File</button></div><div id="handoffs"></div></div></div></div></section>
-<section id="chat" class="tab"><div class="card"><h2>Talk to any assistant</h2><p>Example: “Neha, latest project test karo” or “Arjun file Neha ko do”.</p><div id="chatLog" class="chatlog"></div><div class="chatbox"><input id="chatInput" placeholder="Assistant ka naam lekar message likho..."><button id="sendChat">Send</button></div></div></section>
-<section id="activity" class="tab"><div class="card"><h2>Live Activity Feed</h2><div id="audit"></div></div></section>
-</main></div><script src="/static/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Virtual Company OS</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside id="sidebar" class="sidebar">
+    <div class="brand-row">
+      <div class="logo-mark">VC</div>
+      <div><div class="brand">Virtual Company</div><div class="small">AI Operating System</div></div>
+      <button id="closeMenu" class="icon-btn mobile-only">×</button>
+    </div>
+    <nav>
+      <button data-tab="office" class="active"><span>🏢</span> Live Office</button>
+      <button data-tab="tasks"><span>📋</span> Tasks</button>
+      <button data-tab="files"><span>📚</span> File Library</button>
+      <button data-tab="chat"><span>💬</span> Company Chat</button>
+      <button data-tab="activity"><span>⚡</span> Activity</button>
+    </nav>
+    <div class="sidebar-section-title">Team directory</div>
+    <div id="sidebarRoles" class="sidebar-roles"></div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div class="topbar-left">
+        <button id="openMenu" class="icon-btn mobile-only">☰</button>
+        <div><h1 id="pageTitle">Live Office</h1><p>See who is working, where files are moving, and what each AI employee is doing.</p></div>
+      </div>
+      <span id="health" class="pill">● connecting</span>
+    </header>
+
+    <section id="office" class="tab active">
+      <div class="metrics">
+        <div class="metric-card"><span>👥</span><div><small>Employees</small><b id="roleCount">24</b></div></div>
+        <div class="metric-card"><span>🟢</span><div><small>Working now</small><b id="openCount">0</b></div></div>
+        <div class="metric-card"><span>✅</span><div><small>Completed</small><b id="doneCount">0</b></div></div>
+        <div class="metric-card"><span>📁</span><div><small>Project files</small><b id="fileCount">0</b></div></div>
+      </div>
+
+      <div class="office-toolbar card">
+        <div><div class="eyebrow">LIVE DIGITAL TWIN</div><h2>Virtual Headquarters</h2><p>Every room is a department. Status comes from real tasks, not fake animation.</p></div>
+        <div class="toolbar-actions"><div class="legend"><span><i class="dot available"></i>Available</span><span><i class="dot working"></i>Working</span><span><i class="dot review"></i>Review</span></div><button id="refresh" class="secondary-btn">↻ Refresh</button></div>
+      </div>
+
+      <div class="office-campus">
+        <div class="office-corridor"><span>RECEPTION</span><div class="reception-desk">AI Front Desk & Visitor Lobby</div><span>MAIN CORRIDOR</span></div>
+        <div id="officeFloor" class="office-floor"></div>
+        <div class="meeting-zone"><div class="meeting-room"><b>Conference Room</b><span>Team meetings • project reviews • approvals</span></div><div class="server-room"><b>Server / DevOps Room</b><span>Deployments • infrastructure • monitoring</span></div></div>
+        <div class="handoff-lane"><span class="lane-label">Live file handoff</span><div id="handoffTicker" class="handoff-ticker">No file transfers yet</div></div>
+      </div>
+      <div id="agentDrawer" class="agent-drawer hidden"><button id="closeAgent" class="drawer-close">×</button><div id="agentDrawerBody"></div></div>
+    </section>
+
+    <section id="tasks" class="tab">
+      <div class="grid2">
+        <div class="card"><h2>Assign Task</h2><input id="taskTitle" placeholder="Task title"><textarea id="taskDesc" placeholder="Hindi/English: Arjun login API banao / Neha project test karo"></textarea><button id="createTask">Create & Route</button></div>
+        <div class="card"><div class="eyebrow">AUTONOMOUS FLOW</div><h2>How work moves</h2><div class="flow-steps"><span>CEO</span><b>→</b><span>Aarav</span><b>→</b><span>Specialist</span><b>→</b><span>File</span><b>→</b><span>QA/Review</span><b>→</b><span>Done</span></div></div>
+      </div>
+      <div class="card"><h2>Task Board</h2><div id="taskList"></div></div>
+    </section>
+
+    <section id="files" class="tab">
+      <div class="card"><div class="row"><div><div class="eyebrow">PROJECT WORKSPACE</div><h2>Workspace File Library</h2><p>VS Code style file tree, downloads, history and agent handoffs.</p></div><a class="button" href="/api/files/demo-company/download">Download Full Project ZIP</a></div>
+      <div class="file-layout"><div class="file-panel"><h3>File Tree</h3><div id="fileTree"></div></div><div><h3>Change History</h3><div id="changes"></div><h3>File Handoff</h3><div class="handoff-form"><input id="handoffPath" placeholder="e.g. qa_report.md"><input id="fromAgent" placeholder="From: Arjun"><input id="toAgent" placeholder="To: Neha"><input id="purpose" placeholder="Purpose: testing"><button id="shareFile">Share File</button></div><div id="handoffs"></div></div></div></div>
+    </section>
+
+    <section id="chat" class="tab"><div class="card"><div class="eyebrow">DIRECT COMMUNICATION</div><h2>Talk to any assistant</h2><p>Example: “Neha, latest project test karo” or “Arjun file Neha ko do”.</p><div id="chatLog" class="chatlog"></div><div class="chatbox"><input id="chatInput" placeholder="Assistant ka naam lekar message likho..."><button id="sendChat">Send</button></div></div></section>
+    <section id="activity" class="tab"><div class="card"><div class="eyebrow">AUDIT TRAIL</div><h2>Live Activity Feed</h2><div id="audit"></div></div></section>
+  </main>
+</div>
+<div id="backdrop" class="backdrop hidden"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
